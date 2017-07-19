@@ -44,17 +44,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // synced using chrome sync
     /* Even if a user disables syncing, storage.sync will still work. 
     In this case, it will behave identically to storage.local. */
-    const Storage = chrome.storage.sync;
+    const Storage = chrome.storage.local;
     // urls object (associative array)
-    Storage.get('urls', (urls) => {
+    Storage.get('urls', (result) => {
+      // the input argument is ALWAYS an object containing the queried keys
+      // You can store objects/arrays directly with the new Storage API
+      // with local storage raw, you have to store key-value pairs
+      let urls = result.urls || {};
+      if(!urls[url])
+        urls[url] = 0;
       urls[url] += 1; // update times visited site
-
-      renderStatus(urls); // show popup // testing only
-      Storage.set({
-        url: old + 1
-      }, () => {
+      console.log(urls[url]); // show popup // testing only
+      renderStatus(urls[url])
+      Storage.set({'urls': urls}, () => {
         // Notify that we saved.
-        console.log('Url updated');
+        console.log('Url data updated');
       });
     });
     // use chrome.storage.local for local storage
