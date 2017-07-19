@@ -10,8 +10,13 @@
     "default_popup": "popup.html",
     "default_title": "Click here!"
   },
+  "background": {
+    "scripts": ["runner.js"],
+    "persistent": false
+  },
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "tabs"
   ]
 }

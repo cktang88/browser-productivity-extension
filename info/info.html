@@ -1,25 +1,19 @@
 <!doctype html>
 <html>
   <head>
-    <!--<title>ce-incremental</title>-->
+    <title>ce-incremental</title>
     <style>
       body {
+        margin: 2em;
         font-family: "Segoe UI", sans-serif;
-        font-size: 14px;
-      }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: break-word;
-        overflow: auto;
-        /*max-width: 400px;*/
+        font-size: 16px;
       }
     </style>
 
   </head>
   <body>
-    <div id="status"></div>
-    <button id="statsbtn">Stats</button>
+    <h1>Stats:</h1>
+    <div id="info"></div>
 
     <!--
       - JavaScript and HTML must be in separate files: see our Content Security
@@ -27,7 +21,6 @@
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
      -->
-    <script src="popup.js"></script>
+    <script src="info.js"></script>
   </body>
 </html>
-
