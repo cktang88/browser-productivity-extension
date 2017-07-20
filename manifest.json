@@ -10,8 +10,14 @@
     "default_popup": "popup.html",
     "default_title": "Click here!"
   },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "js": ["contentscript.js"]
+    }
+  ],
   "background": {
-    "scripts": ["runner.js"],
+    "scripts": ["background.js"],
     "persistent": false
   },
   "permissions": [

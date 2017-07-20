@@ -5,15 +5,15 @@ A chrome-extension incremental game prototype.
 ## Dev
 **To test:** Enable `Developer mode` in Chrome Extensions page. Select `Load unpacked extension`, and browse to local dev directory.
 
-**To show console:**
-`Right-click popup > inspect popup`
+**Debugging:**
+`Right-click popup > inspect popup` for popup page debugging
+`chrome://extensions > 'Inspect page' on extension info` for background script/content script debugging
 
 NOTE: `manifest.json` only gets updated when you click `Reload (Ctrl+R)` in the Chrome Extensions page.
 
 ## Todos
 
-1. Currently, script only runs when user clicks popup. Should run all the time.
-2. Make better value calculation
+1. Make better value calculation
 
 
 ## Info
