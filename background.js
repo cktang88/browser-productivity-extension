@@ -1,27 +1,39 @@
-let cur_url = undefined; // current tab url
-const numSecs = 5; // save every 5 seconds
+let current_url = undefined; // current tab url
+const saveInterval = 5; // seconds
 
-const updateTabUrl = (tabId) => chrome.tabs.get(tabId, tab => {
-  cur_url = tab.url || undefined;
-});
+const updateTab = (tabId) => 
+  chrome.tabs.get(tabId, tab => {
+    current_url = tab.url || undefined;
+  });
 
 // handles when user switches tabs
 chrome.tabs.onActivated.addListener(function (activeinfo) {
-  updateTabUrl(activeinfo.tabId); // if url not ready, onUpdated() will update it later
+  updateTab(activeinfo.tabId); // if url not ready, onUpdated() will update it later
 });
+u
 // handles when user changes url in current tab
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  if (changeInfo.url) // only act if url changed
-    updateTabUrl(tabId);
+  let urlChanged = changeInfo.url;
+  
+  if (urlChanged)
+    updateTab(tabId);
 });
 
 // clean url a bit
 const cleanUrl = url => {
   console.assert(typeof url == 'string', 'tab.url should be a string');
+
   // remove front-parts
-  url = url.replace('https://', '').replace('http://', '').replace('www.', '').trim();
-  return url.split(/[?#]/)[0]; // remove ? and # url query appendings
+  protocol = url.split('://')[0]
+  url = url.split('://')[1]
+  
+  // remove www and ? and # url query appendings
+  url = url.replace('www.', '').trim();
+  url = url.split(/[?#]/)[0];
+
+  return url;
 }
+
 setInterval(() => {
   chrome.windows.getCurrent(function (browser) {
     // only save if window focused
@@ -29,10 +41,10 @@ setInterval(() => {
     can't use onFocusChanged() 
     b/c isn't triggered when user navigates to different application
     */
-    if (cur_url && browser.focused)
-      storeUrl(cleanUrl(cur_url));
+    if (current_url && browser.focused)
+      storeUrl(cleanUrl(current_url));
   })
-}, numSecs * 1000);
+}, saveInterval * 1000);
 
 
 /* stores url info persistently in localstorage */
@@ -52,7 +64,7 @@ const storeUrl = url => {
     let urls = result.urls || {};
     if (!urls[url])
       urls[url] = 0;
-    urls[url] += numSecs; // match
+    urls[url] += saveInterval; // match
     // console.log(urls[url]);
     Storage.set({
       'urls': urls
