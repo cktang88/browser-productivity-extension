@@ -4,10 +4,14 @@ Some environments, such as Google Chrome Apps, enforce Content Security Policy (
 which prohibits the use of new Function() for evaluating expressions.
 */
 
-const Storage = chrome.storage.local;
-const $ = document.getElementById.bind(document); // being lazy
+const $ = { // shortcuts
+  get: document.getElementById.bind(document),
+  make: document.createElement.bind(document),
+}
+
 let domains = [];
 const update = () => {
+  const Storage = chrome.storage.local;
   Storage.get('urls', (result) => {
     let arr = [];
     Object.keys(result.urls).forEach(url => {
@@ -64,7 +68,7 @@ const update = () => {
 
     // sum time of all domains
     const totaltime = domains.reduce((sum, e, ind) => sum + e.totaltime, 0);
-    $('totaltime').innerText = "Total: " + format(totaltime);
+    $.get('totaltime').innerText = "Total: " + format(totaltime);
 
     let html = "";
     domains.forEach((e, i) => {
@@ -72,7 +76,7 @@ const update = () => {
       const id = 'domain_' + i;
       html += `<li><label class='domain' id='${id}'>${prettyDomain(e.domain)}</label>   ${format(e.totaltime)}</li>`;
     }, this);
-    $('app').innerHTML = html;
+    $.get('app').innerHTML = html;
     // console.log(html);
   });
 };
@@ -88,11 +92,13 @@ document.body.onclick = (e) => {
       // remove last child, fastest see https://stackoverflow.com/a/3955238/6702495
       el.removeChild(el.lastChild); // removes the <ul> element
     } else {
-      const node = document.createElement('ul');
+      const list = $.make('ul');
       domains[index].children.forEach(c => {
-        node.innerHTML += `<li>${c.url}   ${format(c.time)}</li>`;
+        const item = $.make('li');
+        item.innerText = `${c.url}   ${format(c.time)}`;
+        list.appendChild(item);
       });
-      el.appendChild(node);
+      el.appendChild(list);
     }
   }
 }
@@ -106,12 +112,12 @@ let format = (secs) => {
 }
 
 // reset
-$('resetbtn').onclick = () => {
+$.get('resetbtn').onclick = () => {
   alert('Will reset');
   Storage.set({
     'urls': {}
   }, () => {
-    $('app').innerHTML = "";
+    $.get('app').innerHTML = "";
     alert('All reset.');
   });
 }
