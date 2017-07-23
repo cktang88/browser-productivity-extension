@@ -101,7 +101,7 @@ $('resetbtn').onclick = () => {
   Storage.set({
     'urls': {}
   }, () => {
-    $('info').innerHTML = "";
+    $('app').innerHTML = "";
     alert('All reset.');
   });
 }
