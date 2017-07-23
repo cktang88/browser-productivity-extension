@@ -10,6 +10,7 @@ const $ = { // shortcuts
 }
 
 let domains = [];
+let old_domains = []; // used to keep state
 const update = () => {
   const Storage = chrome.storage.local;
   Storage.get('urls', (result) => {
@@ -40,14 +41,21 @@ const update = () => {
       return d;
     }
 
-
     domains = arr.map(e => ({
       'domain': getdomain(e.url),
       'totaltime': 0,
-      'children': []
+      'children': [],
+      'maximized': false
     }));
     // filter for unique domains
     domains = domains.filter((e, i) => domains.findIndex(e2 => e.domain === e2.domain) === i);
+
+    domains.forEach((e, i) => {
+      // no guarantee that index of old_domain corresponds to same domain as this index (i)
+      const oldindex = old_domains.findIndex(old => old.domain == e.domain) // need to match name
+      if(oldindex != -1)
+        e.maximized = old_domains[oldindex].maximized; // set to true when maximized, preserves state
+    });
 
     // group urls into domains
     arr.forEach((e, i) => {
@@ -86,8 +94,14 @@ const update = () => {
       t.innerText = format(e.totaltime);
       item.append(t);
 
+      if (e.maximized) { // preserves maximized state
+        addDomainChildrenToDOM(item, e);
+      }
+
       $.get('app').appendChild(item);
     }, this);
+
+    old_domains = domains;
   });
 };
 
@@ -101,16 +115,23 @@ document.body.onclick = (e) => {
     if (el.childNodes.length == 3) {
       // remove last child, fastest see https://stackoverflow.com/a/3955238/6702495
       el.removeChild(el.lastChild); // removes the <ul> element
+      domains[index].maximized = false; // update state
     } else {
-      const list = $.make('ul');
-      domains[index].children.forEach(c => {
-        const item = $.make('li');
-        item.innerText = `${c.url}   ${format(c.time)}`;
-        list.appendChild(item);
-      });
-      el.appendChild(list);
+      addDomainChildrenToDOM(el, domains[index]);
+      domains[index].maximized = true; // update state
     }
   }
+}
+
+// self-explanatory
+function addDomainChildrenToDOM(parent, domain) {
+  const list = $.make('ul');
+  domain.children.forEach(c => {
+    const item = $.make('li');
+    item.innerText = `${c.url}   ${format(c.time)}`;
+    list.appendChild(item);
+  });
+  parent.appendChild(list);
 }
 
 update();
@@ -127,7 +148,7 @@ $.get('resetbtn').onclick = () => {
   Storage.set({
     'urls': {}
   }, () => {
-    $.get('app').innerHTML = "";
+    $.get('app').innerHTML = '';
     alert('All reset.');
   });
 }
