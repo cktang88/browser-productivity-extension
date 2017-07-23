@@ -19,39 +19,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-function getCurrentTabUrl(callback) {
-  // Query filter to be passed to chrome.tabs.query - see
-  // https://developer.chrome.com/extensions/tabs#method-query
-  const queryInfo = {
-    active: true,
-    currentWindow: true
-  };
-
-  // clean url a bit
-  const cleanUrl = url => {
-    console.assert(typeof url == 'string', 'tab.url should be a string');
-    // remove front-parts
-    url = url.replace('https://', '').replace('http://', '').replace('www.', '').trim();
-    return url.split(/[?#]/)[0]; // remove ? and # url query appendings
-  }
-
-  chrome.tabs.query(queryInfo, tabs => {
-    const tab = tabs[0];
-    // tab object: https://developer.chrome.com/extensions/tabs#type-Tab
-    callback(cleanUrl(tab.url));
-  });
-}
+const getCurrentTabUrl = (tabId) => chrome.tabs.get(tabId, tab => {
+  cur_url = tab.url || undefined;
+});
 
 let cur_url = undefined; // current tab url
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  // only act if url changed
-  if (!changeInfo.url)
-    return;
+chrome.tabs.onActivated.addListener(function (activeinfo) {
+  // handles when user switches tabs
 
-  getCurrentTabUrl(url => {
-    cur_url = url;
-  });
-  // do stuff with that url here....
+  getCurrentTabUrl(activeinfo.tabId); // if url not ready, onUpdated() will update it later
+});
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  // handles when user changes url in current tab
+  // only act if url changed
+  if (changeInfo.url)
+    getCurrentTabUrl(tabId);
 });
 
 // save every 5 seconds --> optimize later (see local storage performance)
@@ -59,9 +41,16 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 // TODO: ONLY ADD 1. ON ACTIVE TAB 2. WHEN BROWSER FOCUSED
 // see https://stackoverflow.com/questions/2574204/detect-browser-focus-out-of-focus-via-google-chrome-extension
 const numSecs = 5;
+// clean url a bit
+const cleanUrl = url => {
+  console.assert(typeof url == 'string', 'tab.url should be a string');
+  // remove front-parts
+  url = url.replace('https://', '').replace('http://', '').replace('www.', '').trim();
+  return url.split(/[?#]/)[0]; // remove ? and # url query appendings
+}
 setInterval(() => {
   if (cur_url)
-    storeUrl(cur_url);
+    storeUrl(cleanUrl(cur_url));
 }, numSecs * 1000);
 
 
