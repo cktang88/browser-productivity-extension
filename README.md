@@ -1,6 +1,9 @@
 # ce-incremental
 
-A chrome-extension incremental game prototype.
+A productivity Chrome Extension that logs the amount of time you spend on each website.
+
+
+[Example]('pic.PNG')
 
 ## Dev
 **To test:** Enable `Developer mode` in Chrome Extensions page. Select `Load unpacked extension`, and browse to local dev directory.
@@ -9,7 +12,7 @@ A chrome-extension incremental game prototype.
 `Right-click popup > inspect popup` for popup page debugging
 `chrome://extensions > 'Inspect page' on extension info` for background script/content script debugging
 
-NOTE: Must `Reload (Ctrl+R)` extension whenever you change background scripts or `manifest.json` via the Chrome Extensions page.
+*NOTE:* Must `Reload (Ctrl+R)` extension whenever you change background scripts or `manifest.json` via the Chrome Extensions page.
 
 ## Info
 

@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "ce-incremental",
-  "description": "An incremental game played by browsing the web.",
+  "description": "A productivity extension that logs the amount of time you spend on each site.",
   "version": "1.0",
 
   "browser_action": {
