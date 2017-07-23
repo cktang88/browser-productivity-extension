@@ -16,7 +16,11 @@
 
 <body>
   <h1>Stats:</h1>
+  <button id='resetbtn'>Reset</button>
+  <h2 id='totaltime'></h2>
   <div id="info"></div>
+  <ul id='app'>
+  </ul>
 
   <!--
       - JavaScript and HTML must be in separate files: see our Content Security
@@ -24,6 +28,7 @@
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
      -->
+  <!-- also can't call remote scripts -->
   <script src="info.js"></script>
 </body>
 

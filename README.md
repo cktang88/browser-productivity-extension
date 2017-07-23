@@ -9,12 +9,7 @@ A chrome-extension incremental game prototype.
 `Right-click popup > inspect popup` for popup page debugging
 `chrome://extensions > 'Inspect page' on extension info` for background script/content script debugging
 
-NOTE: `manifest.json` only gets updated when you click `Reload (Ctrl+R)` in the Chrome Extensions page.
-
-## Todos
-
-1. Make better value calculation
-
+NOTE: Must `Reload (Ctrl+R)` extension whenever you change background scripts or `manifest.json` via the Chrome Extensions page.
 
 ## Info
 

@@ -39,8 +39,10 @@ function getCurrentTabUrl(callback) {
     let start = url.indexOf('://'); // count http/https as same site
     if (start == -1)
       start = 0;
+    if(url.indexOf('www') > -1) // check 'www'
+      start = Math.max(start, url.indexOf('www')) + 1;
     if (start > 0)
-      start += 3; // remove '://'
+      start += 3; // remove '://' and 'www' as necessary
     return url.slice(start, end).trim();
   }
 
@@ -63,11 +65,15 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   // do stuff with that url here....
 });
 
-// each second, increment
+// save every 5 seconds --> optimize later (see local storage performance)
+// idea: whenever active tab change or exit browser, save total time of "cur_url"
+// TODO: ONLY ADD 1. ON ACTIVE TAB 2. WHEN BROWSER FOCUSED
+// see https://stackoverflow.com/questions/2574204/detect-browser-focus-out-of-focus-via-google-chrome-extension
+const numSecs = 5;
 setInterval(() => {
   if (cur_url)
     storeUrl(cur_url);
-}, 1000);
+}, numSecs * 1000);
 
 
 /* stores url info persistently in localstorage */
@@ -87,14 +93,13 @@ const storeUrl = url => {
     let urls = result.urls || {};
     if (!urls[url])
       urls[url] = 0;
-    urls[url] += 1; // update times visited site
-    console.log(urls[url]); // show popup // testing only
-    // alert(urls[url]);
+    urls[url] += numSecs; // match
+    // console.log(urls[url]);
     Storage.set({
       'urls': urls
     }, () => {
       // Notify that we saved.
-      console.log('Url data updated');
+      // console.log('Url data updated');
     });
   });
 }
