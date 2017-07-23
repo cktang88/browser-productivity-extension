@@ -10,10 +10,10 @@ const updateTab = (tabId) =>
 chrome.tabs.onActivated.addListener(function (activeinfo) {
   updateTab(activeinfo.tabId); // if url not ready, onUpdated() will update it later
 });
-u
+
 // handles when user changes url in current tab
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  let urlChanged = changeInfo.url;
+  const urlChanged = changeInfo.url;
   
   if (urlChanged)
     updateTab(tabId);
@@ -21,11 +21,9 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 // clean url a bit
 const cleanUrl = url => {
-  console.assert(typeof url == 'string', 'tab.url should be a string');
-
   // remove front-parts
-  protocol = url.split('://')[0]
-  url = url.split('://')[1]
+  const protocol = url.split('://')[0];
+  url = url.split('://')[1];
   
   // remove www and ? and # url query appendings
   url = url.replace('www.', '').trim();
@@ -49,7 +47,7 @@ setInterval(() => {
 
 /* stores url info persistently in localstorage */
 const storeUrl = url => {
-  console.log(url);
+  // console.log(url);
   // synced using chrome sync
   /* Even if a user disables syncing, storage.sync will still work. 
   In this case, it will behave identically to storage.local. */
