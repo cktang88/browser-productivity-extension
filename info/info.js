@@ -70,9 +70,12 @@ const update = () => {
     const totaltime = domains.reduce((sum, e, ind) => sum + e.totaltime, 0);
     $.get('totaltime').innerText = "Total: " + format(totaltime);
 
+    // clear
+    $.get('app').innerHTML = '';
+
     domains.forEach((e, i) => {
       const item = $.make('li');
-      
+
       const d = $.make('label');
       d.className = 'domain';
       d.id = 'domain_' + i; // every domain has unique id
