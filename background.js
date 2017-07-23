@@ -1,46 +1,20 @@
-// receiving message from content-script
-// alert('Background script started');
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  alert('Background script: Message received from content script');
-  console.log(sender.tab ?
-    "from a content script:" + sender.tab.url :
-    "from the extension");
-  if (request.greeting == "hello")
-    sendResponse({
-      data: "useless hello."
-    });
+let cur_url = undefined; // current tab url
+const numSecs = 5; // save every 5 seconds
 
-  // attempt to store url
-  if (request.url) {
-    storeUrl(url);
-    sendResponse({
-      data: 'url received',
-    })
-  }
-});
-
-const getCurrentTabUrl = (tabId) => chrome.tabs.get(tabId, tab => {
+const updateTabUrl = (tabId) => chrome.tabs.get(tabId, tab => {
   cur_url = tab.url || undefined;
 });
 
-let cur_url = undefined; // current tab url
+// handles when user switches tabs
 chrome.tabs.onActivated.addListener(function (activeinfo) {
-  // handles when user switches tabs
-
-  getCurrentTabUrl(activeinfo.tabId); // if url not ready, onUpdated() will update it later
+  updateTabUrl(activeinfo.tabId); // if url not ready, onUpdated() will update it later
 });
+// handles when user changes url in current tab
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  // handles when user changes url in current tab
-  // only act if url changed
-  if (changeInfo.url)
-    getCurrentTabUrl(tabId);
+  if (changeInfo.url) // only act if url changed
+    updateTabUrl(tabId);
 });
 
-// save every 5 seconds --> optimize later (see local storage performance)
-// idea: whenever active tab change or exit browser, save total time of "cur_url"
-// TODO: ONLY ADD 1. ON ACTIVE TAB 2. WHEN BROWSER FOCUSED
-// see https://stackoverflow.com/questions/2574204/detect-browser-focus-out-of-focus-via-google-chrome-extension
-const numSecs = 5;
 // clean url a bit
 const cleanUrl = url => {
   console.assert(typeof url == 'string', 'tab.url should be a string');
@@ -49,8 +23,15 @@ const cleanUrl = url => {
   return url.split(/[?#]/)[0]; // remove ? and # url query appendings
 }
 setInterval(() => {
-  if (cur_url)
-    storeUrl(cleanUrl(cur_url));
+  chrome.windows.getCurrent(function (browser) {
+    // only save if window focused
+    /*
+    can't use onFocusChanged() 
+    b/c isn't triggered when user navigates to different application
+    */
+    if (cur_url && browser.focused)
+      storeUrl(cleanUrl(cur_url));
+  })
 }, numSecs * 1000);
 
 
