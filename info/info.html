@@ -5,9 +5,20 @@
   <title>ce-incremental</title>
   <link rel="stylesheet" href="https://unpkg.com/wingcss" />
   <style>
+    html {
+      background-color: #eee;
+    }
+
     body {
       margin: 2em;
       font-size: 16px;
+
+      /* make text not selectable */
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      /* make cursor not change over text */
+      cursor: default;
     }
 
     #totaltime {
@@ -18,6 +29,7 @@
     .domain {
       font-size: 20px;
       font-weight: normal;
+      padding-right: 1em;
     }
   </style>
 

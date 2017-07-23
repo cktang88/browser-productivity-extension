@@ -1,7 +1,7 @@
 let current_url = undefined; // current tab url
 const saveInterval = 5; // seconds
 
-const updateTab = (tabId) => 
+const updateTab = (tabId) =>
   chrome.tabs.get(tabId, tab => {
     current_url = tab.url || undefined;
   });
@@ -14,21 +14,24 @@ chrome.tabs.onActivated.addListener(function (activeinfo) {
 // handles when user changes url in current tab
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   const urlChanged = changeInfo.url;
-  
+
   if (urlChanged)
     updateTab(tabId);
 });
 
 // clean url a bit
 const cleanUrl = url => {
+
   // remove front-parts
   const protocol = url.split('://')[0];
+  // only store public websites
+  if (protocol && protocol != 'http' && protocol != 'https')
+    return '';
   url = url.split('://')[1];
-  
+
   // remove www and ? and # url query appendings
   url = url.replace('www.', '').trim();
   url = url.split(/[?#]/)[0];
-
   return url;
 }
 
@@ -47,6 +50,9 @@ setInterval(() => {
 
 /* stores url info persistently in localstorage */
 const storeUrl = url => {
+  // don't store blanks
+  if (!url || !url.length || url.length == 0)
+    return;
   // console.log(url);
   // synced using chrome sync
   /* Even if a user disables syncing, storage.sync will still work. 

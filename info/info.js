@@ -11,8 +11,8 @@ const $ = { // shortcuts
 
 let domains = [];
 let old_domains = []; // used to keep state
+const Storage = chrome.storage.local;
 const update = () => {
-  const Storage = chrome.storage.local;
   Storage.get('urls', (result) => {
     let arr = [];
     Object.keys(result.urls).forEach(url => {
@@ -53,7 +53,7 @@ const update = () => {
     domains.forEach((e, i) => {
       // no guarantee that index of old_domain corresponds to same domain as this index (i)
       const oldindex = old_domains.findIndex(old => old.domain == e.domain) // need to match name
-      if(oldindex != -1)
+      if (oldindex != -1)
         e.maximized = old_domains[oldindex].maximized; // set to true when maximized, preserves state
     });
 
@@ -121,6 +121,12 @@ document.body.onclick = (e) => {
       domains[index].maximized = true; // update state
     }
   }
+}
+
+// doesnt work
+document.body.onmouseover = (e) => {
+  let el = e.target;
+  el.setAttribute('text-decoration', 'underline');
 }
 
 // self-explanatory
