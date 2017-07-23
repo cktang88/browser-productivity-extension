@@ -30,20 +30,9 @@ function getCurrentTabUrl(callback) {
   // clean url a bit
   const cleanUrl = url => {
     console.assert(typeof url == 'string', 'tab.url should be a string');
-    // clean up url
-    let end = url.indexOf('?'); // remove ? and # url appendings
-    if (end == -1)
-      end = url.length;
-    if (url.indexOf('#') > -1)
-      end = Math.min(end, url.indexOf('#'));
-    let start = url.indexOf('://'); // count http/https as same site
-    if (start == -1)
-      start = 0;
-    if(url.indexOf('www') > -1) // check 'www'
-      start = Math.max(start, url.indexOf('www')) + 1;
-    if (start > 0)
-      start += 3; // remove '://' and 'www' as necessary
-    return url.slice(start, end).trim();
+    // remove front-parts
+    url = url.replace('https://', '').replace('http://', '').replace('www.', '').trim();
+    return url.split(/[?#]/)[0]; // remove ? and # url query appendings
   }
 
   chrome.tabs.query(queryInfo, tabs => {

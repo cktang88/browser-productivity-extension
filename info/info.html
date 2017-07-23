@@ -3,24 +3,35 @@
 
 <head>
   <title>ce-incremental</title>
+  <link rel="stylesheet" href="https://unpkg.com/wingcss" />
   <style>
     body {
       margin: 2em;
-      font-family: "Segoe UI", sans-serif;
       font-size: 16px;
     }
+
+    #totaltime {
+      color: #aaa;
+      font-size: 30px;
+    }
+
+    #resetbtn {
+      
+    }
+
+    #domain {
+      font-size: 20px;
+      font-weight: bold;
+    }
   </style>
-  <link rel="stylesheet" href="https://unpkg.com/wingcss" />
 
 </head>
 
 <body>
-  <h1>Stats:</h1>
-  <button id='resetbtn'>Reset</button>
-  <h2 id='totaltime'></h2>
-  <div id="info"></div>
+  <label id='totaltime'></label>
   <ul id='app'>
   </ul>
+  <button id='resetbtn'>Reset</button>
 
   <!--
       - JavaScript and HTML must be in separate files: see our Content Security
