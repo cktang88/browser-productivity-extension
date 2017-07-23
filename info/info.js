@@ -70,14 +70,21 @@ const update = () => {
     const totaltime = domains.reduce((sum, e, ind) => sum + e.totaltime, 0);
     $.get('totaltime').innerText = "Total: " + format(totaltime);
 
-    let html = "";
     domains.forEach((e, i) => {
-      // yes, this is a mess
-      const id = 'domain_' + i;
-      html += `<li><label class='domain' id='${id}'>${prettyDomain(e.domain)}</label>   ${format(e.totaltime)}</li>`;
+      const item = $.make('li');
+      
+      const d = $.make('label');
+      d.className = 'domain';
+      d.id = 'domain_' + i; // every domain has unique id
+      d.innerText = prettyDomain(e.domain);
+      item.append(d);
+
+      const t = $.make('span');
+      t.innerText = format(e.totaltime);
+      item.append(t);
+
+      $.get('app').appendChild(item);
     }, this);
-    $.get('app').innerHTML = html;
-    // console.log(html);
   });
 };
 
