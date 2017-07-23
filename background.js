@@ -27,6 +27,7 @@ function getCurrentTabUrl(callback) {
     currentWindow: true
   };
 
+  // clean url a bit
   const cleanUrl = url => {
     console.assert(typeof url == 'string', 'tab.url should be a string');
     // clean up url
@@ -49,18 +50,25 @@ function getCurrentTabUrl(callback) {
     callback(cleanUrl(tab.url));
   });
 }
+
+let cur_url = undefined; // current tab url
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   // only act if url changed
   if (!changeInfo.url)
     return;
 
-  // clean url a bit
   getCurrentTabUrl(url => {
-    storeUrl(url);
-    // alert('stored url.');
+    cur_url = url;
   });
   // do stuff with that url here....
 });
+
+// each second, increment
+setInterval(() => {
+  if (cur_url)
+    storeUrl(cur_url);
+}, 1000);
+
 
 /* stores url info persistently in localstorage */
 const storeUrl = url => {
