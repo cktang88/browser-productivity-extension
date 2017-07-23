@@ -56,26 +56,44 @@ const update = () => {
     // sort domains highest to lowest time spent
     domains.sort((a, b) => b.totaltime - a.totaltime);
 
+    // sort children for each domain
+    domains.forEach(e => {
+      e.children.sort((a, b) => b.time - a.time);
+    })
+
     // sum time of all domains
     const totaltime = domains.reduce((sum, e, ind) => sum + e.totaltime, 0);
-    $('totaltime').innerText = "Total: " + totaltime + " secs";
+    $('totaltime').innerText = "Total: " + format(totaltime);
 
     let html = "";
-    domains.forEach(e => {
-      html += '<li>' + '<label id="domain">' + prettyDomain(e.domain) + '</label>   ' + e.totaltime;
+    domains.forEach((e, i) => {
+      const id = "domain" + i;
+      html += `<li><label class='domain' id='${id}'>${prettyDomain(e.domain)}</label>   ${format(e.totaltime)}`;
       html += '<ul>';
       e.children.forEach(c => {
-        html += '<li>' + c.url + '   ' + c.time + '</li>';
+        html += `<li>${c.url}   ${format(c.time)}</li>`;
       })
       html += '</ul></li>';
-
     }, this);
     $('app').innerHTML = html;
+    // console.log(html);
   });
 };
 
+// global click delegation
+document.body.onclick = (e) => {
+  const el = e.target;
+  if(el.class)
+    style.visibility = 'hidden';
+}
+
 update();
 setInterval(update, 5000); // update every 5 seconds
+
+let format = (secs) => {
+  // minutes, 1 decimal place
+  return Math.round(secs / 60 * 10) / 10 + ' mins';
+}
 
 // reset
 $('resetbtn').onclick = () => {
