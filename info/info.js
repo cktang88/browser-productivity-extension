@@ -88,6 +88,7 @@ const update = () => {
       d.className = 'domain';
       d.id = 'domain_' + i; // every domain has unique id
       d.innerText = prettyDomain(e.domain);
+      d.innerText += e.maximized ? ' [-]' : ' [+]';
       item.append(d);
 
       const t = $.make('span');
@@ -109,16 +110,21 @@ const update = () => {
 document.body.onclick = (e) => {
   let el = e.target;
   const index = el.id.split('_')[1];
-  // toggle showing children
+  const domain = domains[index];
+  // toggle expand/collapse
   if (el.className == 'domain') {
+    // update +/- icons
+    el.innerText = el.innerText.split('[')[0] + (domain.maximized ? '[+]' : '[-]');
+
+    // update children
     el = el.parentNode; // get <li> element
     if (el.childNodes.length == 3) {
       // remove last child, fastest see https://stackoverflow.com/a/3955238/6702495
       el.removeChild(el.lastChild); // removes the <ul> element
-      domains[index].maximized = false; // update state
+      domain.maximized = false; // update state
     } else {
       addDomainChildrenToDOM(el, domains[index]);
-      domains[index].maximized = true; // update state
+      domain.maximized = true; // update state
     }
   }
 }

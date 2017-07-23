@@ -1,11 +1,15 @@
-# ce-incremental
-
+ce-incremental
+---
 A productivity Chrome Extension that logs the amount of time you spend on each website.
 
+**Features**
+* Extremely accurate - only tracks time on active tab, and only if browser window is active and focused.
+* Easy to analyze - Sorts & groups your browsing urls so you can get insights at a glance.
 
-[Example]('pic.PNG')
+![Example](pic.PNG)
 
-## Dev
+Dev
+---
 **To test:** Enable `Developer mode` in Chrome Extensions page. Select `Load unpacked extension`, and browse to local dev directory.
 
 **Debugging:**
@@ -14,7 +18,8 @@ A productivity Chrome Extension that logs the amount of time you spend on each w
 
 *NOTE:* Must `Reload (Ctrl+R)` extension whenever you change background scripts or `manifest.json` via the Chrome Extensions page.
 
-## Info
+Info
+---
 
 Four commonly used components for a basic extension:
 
