@@ -6,6 +6,7 @@ which prohibits the use of new Function() for evaluating expressions.
 
 const Storage = chrome.storage.local;
 const $ = document.getElementById.bind(document); // being lazy
+let domains = [];
 const update = () => {
   Storage.get('urls', (result) => {
     let arr = [];
@@ -36,7 +37,7 @@ const update = () => {
     }
 
 
-    let domains = arr.map(e => ({
+    domains = arr.map(e => ({
       'domain': getdomain(e.url),
       'totaltime': 0,
       'children': []
@@ -67,13 +68,9 @@ const update = () => {
 
     let html = "";
     domains.forEach((e, i) => {
-      const id = "domain" + i;
-      html += `<li><label class='domain' id='${id}'>${prettyDomain(e.domain)}</label>   ${format(e.totaltime)}`;
-      html += '<ul>';
-      e.children.forEach(c => {
-        html += `<li>${c.url}   ${format(c.time)}</li>`;
-      })
-      html += '</ul></li>';
+      // yes, this is a mess
+      const id = 'domain_' + i;
+      html += `<li><label class='domain' id='${id}'>${prettyDomain(e.domain)}</label>   ${format(e.totaltime)}</li>`;
     }, this);
     $('app').innerHTML = html;
     // console.log(html);
@@ -82,9 +79,22 @@ const update = () => {
 
 // global click delegation
 document.body.onclick = (e) => {
-  const el = e.target;
-  if(el.class)
-    style.visibility = 'hidden';
+  let el = e.target;
+  const index = el.id.split('_')[1];
+  // toggle showing children
+  if (el.className == 'domain') {
+    el = el.parentNode; // get <li> element
+    if (el.childNodes.length == 3) {
+      // remove last child, fastest see https://stackoverflow.com/a/3955238/6702495
+      el.removeChild(el.lastChild); // removes the <ul> element
+    } else {
+      const node = document.createElement('ul');
+      domains[index].children.forEach(c => {
+        node.innerHTML += `<li>${c.url}   ${format(c.time)}</li>`;
+      });
+      el.appendChild(node);
+    }
+  }
 }
 
 update();
