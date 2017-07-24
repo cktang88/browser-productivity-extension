@@ -20,6 +20,17 @@ $.empty = (str) => {
   $(str).innerHTML = '';
 }
 
+// format time, 1 decimal place
+let format = (secs) => {
+  const mins = Math.round(secs / 60 * 10) / 10;
+  if (mins < 60) {
+    return `${mins} mins`;
+  } else {
+    const hrs = Math.round(mins / 60 * 10) / 10;
+    return `${hrs} hr` + (hrs > 1 ? 's' : '');
+  }
+}
+
 let domains = [];
 let old_domains = []; // used to keep state
 const Storage = chrome.storage.local;
@@ -53,24 +64,24 @@ const update = () => {
     }
 
     domains = arr.map(e => ({
-      'domain': getdomain(e.url),
+      'name': getdomain(e.url),
       'totaltime': 0,
       'children': [],
       'expanded': false
     }));
     // filter for unique domains
-    domains = domains.filter((e, i) => domains.findIndex(e2 => e.domain === e2.domain) === i);
+    domains = domains.filter((e, i) => domains.findIndex(e2 => e.name === e2.name) === i);
 
     domains.forEach((e, i) => {
       // no guarantee that index of old_domain corresponds to same domain as this index (i)
-      const oldindex = old_domains.findIndex(old => old.domain == e.domain) // need to match name
+      const oldindex = old_domains.findIndex(old => old.name == e.name) // need to match name
       if (oldindex != -1)
         e.expanded = old_domains[oldindex].expanded; // set to true when expanded, preserves state
     });
 
     // group urls into domains
     arr.forEach((e, i) => {
-      const domain = domains[domains.findIndex(e2 => e2.domain === getdomain(e.url))];
+      const domain = domains[domains.findIndex(e2 => e2.name === getdomain(e.url))];
       // put into proper domain
       domain.children.push(e);
       // sum time up for each domain
@@ -95,20 +106,27 @@ const update = () => {
     domains.forEach((e, i) => {
       const item = $('<li>');
 
+      // domain name
       const d = $('<label>');
       d.className = 'domain';
       d.id = 'domain_' + i; // every domain has unique id
-      d.innerText = prettyDomain(e.domain);
+      d.innerText = prettyDomain(e.name);
       d.innerText += e.expanded ? ' [-]' : ' [+]';
       item.append(d);
 
+      // time spent
       const t = $('<span>');
       t.innerText = format(e.totaltime);
       item.append(t);
 
+      // add children
       const list = $('<ul>');
-      addDomainChildrenToDOM(list, e);
-      list.style.display = e.expanded ? 'list-item' : 'none'; // preserves expanded state
+      e.children.forEach(c => {
+        const k = $('<li>');
+        k.innerText = `${c.url}   ${format(c.time)}`;
+        list.appendChild(k);
+      });
+      list.style.display = e.expanded ? 'block' : 'none'; // preserves expanded state
       item.append(list);
 
       $('#app').appendChild(item);
@@ -124,17 +142,14 @@ $('body').onclick = (e) => {
   const index = el.id.split('_')[1];
   const domain = domains[index];
   // toggle expand/collapse
-  if (el.className == 'domain') {
-    // update +/- icons
-    el.innerText = el.innerText.split('[')[0] + (domain.expanded ? '[+]' : '[-]');
-
-    // update children
-    el = el.parentNode; // get <li> element
-    console.log(el.lastChild);
-    // toggle state
-    domain.expanded = !domain.expanded;
-    el.lastChild.style.display = domain.expanded ? 'list-item' : 'none';
-  }
+  if (el.className != 'domain')
+    return;
+  // update +/- icons
+  el.innerText = el.innerText.split('[')[0] + (domain.expanded ? '[+]' : '[-]');
+  // update children view
+  el = el.parentNode; // get <li> element
+  domain.expanded = !domain.expanded;
+  el.lastChild.style.display = domain.expanded ? 'block' : 'none';
 }
 
 // doesnt work
@@ -143,22 +158,8 @@ $('body').onmouseover = (e) => {
   el.setAttribute('text-decoration', 'underline');
 }
 
-// self-explanatory
-function addDomainChildrenToDOM(parent, domain) {
-  domain.children.forEach(c => {
-    const item = $('<li>');
-    item.innerText = `${c.url}   ${format(c.time)}`;
-    parent.appendChild(item);
-  });
-}
-
 update();
 setInterval(update, 5000); // update every 5 seconds
-
-let format = (secs) => {
-  // minutes, 1 decimal place
-  return Math.round(secs / 60 * 10) / 10 + ' mins';
-}
 
 // reset
 $('#resetbtn').onclick = () => {
