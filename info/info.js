@@ -4,9 +4,20 @@ Some environments, such as Google Chrome Apps, enforce Content Security Policy (
 which prohibits the use of new Function() for evaluating expressions.
 */
 
-const $ = { // shortcuts
-  get: document.getElementById.bind(document),
-  make: document.createElement.bind(document),
+const $ = (str) => { // jquery syntax shortcuts
+  const len = str.length;
+  switch (str[0]) {
+    case '<': // create dom element
+      if (str[len - 1] == '>')
+        return document.createElement(str.slice(1, len - 1));
+      break;
+    default: // select dom element
+      const nodes = document.querySelectorAll(str);
+      return nodes.length > 1 ? nodes : nodes[0]; // returns 1 elem, or list of elements
+  }
+}
+$.empty = (str) => {
+  $(str).innerHTML = '';
 }
 
 let domains = [];
@@ -45,7 +56,7 @@ const update = () => {
       'domain': getdomain(e.url),
       'totaltime': 0,
       'children': [],
-      'maximized': false
+      'expanded': false
     }));
     // filter for unique domains
     domains = domains.filter((e, i) => domains.findIndex(e2 => e.domain === e2.domain) === i);
@@ -54,7 +65,7 @@ const update = () => {
       // no guarantee that index of old_domain corresponds to same domain as this index (i)
       const oldindex = old_domains.findIndex(old => old.domain == e.domain) // need to match name
       if (oldindex != -1)
-        e.maximized = old_domains[oldindex].maximized; // set to true when maximized, preserves state
+        e.expanded = old_domains[oldindex].expanded; // set to true when expanded, preserves state
     });
 
     // group urls into domains
@@ -76,30 +87,31 @@ const update = () => {
 
     // sum time of all domains
     const totaltime = domains.reduce((sum, e, ind) => sum + e.totaltime, 0);
-    $.get('totaltime').innerText = "Total: " + format(totaltime);
+    $('#totaltime').innerText = "Total: " + format(totaltime);
 
     // clear
-    $.get('app').innerHTML = '';
+    $('#app').innerHTML = '';
 
     domains.forEach((e, i) => {
-      const item = $.make('li');
+      const item = $('<li>');
 
-      const d = $.make('label');
+      const d = $('<label>');
       d.className = 'domain';
       d.id = 'domain_' + i; // every domain has unique id
       d.innerText = prettyDomain(e.domain);
-      d.innerText += e.maximized ? ' [-]' : ' [+]';
+      d.innerText += e.expanded ? ' [-]' : ' [+]';
       item.append(d);
 
-      const t = $.make('span');
+      const t = $('<span>');
       t.innerText = format(e.totaltime);
       item.append(t);
 
-      if (e.maximized) { // preserves maximized state
-        addDomainChildrenToDOM(item, e);
-      }
+      const list = $('<ul>');
+      addDomainChildrenToDOM(list, e);
+      list.style.display = e.expanded ? 'list-item' : 'none'; // preserves expanded state
+      item.append(list);
 
-      $.get('app').appendChild(item);
+      $('#app').appendChild(item);
     }, this);
 
     old_domains = domains;
@@ -107,43 +119,37 @@ const update = () => {
 };
 
 // global click delegation
-document.body.onclick = (e) => {
+$('body').onclick = (e) => {
   let el = e.target;
   const index = el.id.split('_')[1];
   const domain = domains[index];
   // toggle expand/collapse
   if (el.className == 'domain') {
     // update +/- icons
-    el.innerText = el.innerText.split('[')[0] + (domain.maximized ? '[+]' : '[-]');
+    el.innerText = el.innerText.split('[')[0] + (domain.expanded ? '[+]' : '[-]');
 
     // update children
     el = el.parentNode; // get <li> element
-    if (el.childNodes.length == 3) {
-      // remove last child, fastest see https://stackoverflow.com/a/3955238/6702495
-      el.removeChild(el.lastChild); // removes the <ul> element
-      domain.maximized = false; // update state
-    } else {
-      addDomainChildrenToDOM(el, domains[index]);
-      domain.maximized = true; // update state
-    }
+    console.log(el.lastChild);
+    // toggle state
+    domain.expanded = !domain.expanded;
+    el.lastChild.style.display = domain.expanded ? 'list-item' : 'none';
   }
 }
 
 // doesnt work
-document.body.onmouseover = (e) => {
+$('body').onmouseover = (e) => {
   let el = e.target;
   el.setAttribute('text-decoration', 'underline');
 }
 
 // self-explanatory
 function addDomainChildrenToDOM(parent, domain) {
-  const list = $.make('ul');
   domain.children.forEach(c => {
-    const item = $.make('li');
+    const item = $('<li>');
     item.innerText = `${c.url}   ${format(c.time)}`;
-    list.appendChild(item);
+    parent.appendChild(item);
   });
-  parent.appendChild(list);
 }
 
 update();
@@ -155,12 +161,12 @@ let format = (secs) => {
 }
 
 // reset
-$.get('resetbtn').onclick = () => {
+$('#resetbtn').onclick = () => {
   alert('Will reset');
   Storage.set({
     'urls': {}
   }, () => {
-    $.get('app').innerHTML = '';
+    $('#app').innerHTML = '';
     alert('All reset.');
   });
 }
