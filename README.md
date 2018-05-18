@@ -1,9 +1,9 @@
-ce-incremental
+Browser-productivity-extension
 ---
-A productivity Chrome Extension that logs the amount of time you spend on each website.
+A productivity Chrome Extension that logs the amount of time you spend on each website. Similar to [RescueTime](https://www.rescuetime.com/)
 
 **Features**
-* Extremely accurate - only tracks time on active tab, and only if browser window is active and focused.
+* Extremely accurate - only tracks time on the active tab, and only if browser window is active and focused.
 * Easy to analyze - Sorts & groups your browsing urls so you can get insights at a glance.
 
 ![Example](pic.PNG)
