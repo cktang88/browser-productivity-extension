@@ -10,6 +10,9 @@ A productivity Chrome Extension that logs the amount of time you spend on each w
 
 Dev
 ---
+
+TODO: add logos from Clearbit - https://clearbit.com/logo
+
 **To test:** Enable `Developer mode` in Chrome Extensions page. Select `Load unpacked extension`, and browse to local dev directory.
 
 **Debugging:**
