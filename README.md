@@ -24,7 +24,7 @@ TODO: add logos from Clearbit - https://clearbit.com/logo
 Info
 ---
 
-Four commonly used components for a basic extension:
+Four commonly-used components for a basic extension:
 
 1. **Content-scripts** can directly access DOM.  The JS variables and functions from the tab and your content_scripts cannot interact. Furthermore, content-scripts *cannot use storage*.
 
